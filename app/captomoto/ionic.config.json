@@ -1,0 +1,7 @@
+{
+  "name": "captomoto",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}
