@@ -28,6 +28,9 @@ void setup()
   pinMode(POOL_PIN, OUTPUT);
 }
 
+unsigned long lastTimeAvailableCalled = -1;
+unsigned long MAX_ELLAPSED_TIME_BETWEEN_AVAILABLE_CALLS = 10 * 60 * 1000; // 10 mins in millis
+
 void loop()
 {
   if (loopServices())
@@ -35,11 +38,23 @@ void loop()
     setupFirebaseStreaming();
   }
 
-  if (Firebase.available())
-  {
+  unsigned long currentTime = millis();
+  unsigned long ellapsed = (currentTime - lastTimeAvailableCalled) / 1000;
+
+  if (MAX_ELLAPSED_TIME_BETWEEN_AVAILABLE_CALLS < ellapsed) {
+    reset();
+  }
+  
+  if (Firebase.available()) {
+    print("Time elapsed since last Firebase.available: ");
+    print(ellapsed);
+    println("s");
+    
+    lastTimeAvailableCalled = currentTime;
     FirebaseObject event = Firebase.readEvent();
 
     String eventType = event.getString("type");
+  
     println("type: " + eventType);
     if (eventType == "put")
     {

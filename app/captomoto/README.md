@@ -1,5 +1,8 @@
+# Capt's House
 
-# Deploy
+My home automation project
+
+## Deploy
 
 ```
 ionic build

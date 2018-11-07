@@ -5,6 +5,8 @@
 #include "OTA.h"
 #include "light.h"
 
+void (*reset)(void) = 0; // reset function @ address 0
+
 boolean connectToWifi() {
   WiFi.hostname(HOST_NAME);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -28,6 +30,9 @@ boolean connectToWifi() {
   }
 }
 
+short firebaseFailures = 0;
+const short FIREBASE_RESET_TRIGGER = 5;
+
 boolean connectToFirebase() {
   println("Beginning Firebase connection");
 
@@ -36,9 +41,14 @@ boolean connectToFirebase() {
   if (Firebase.failed()) {
     print("Firebase connection failed: ");
     println(Firebase.error());
+    firebaseFailures++;
+    if (FIREBASE_RESET_TRIGGER <= firebaseFailures) {
+      reset();
+    }
     return false;
   } else {
     println("Connected to Firebase!");
+    firebaseFailures = 0;
     return true;
   }
 }
@@ -57,9 +67,13 @@ boolean loopServices() {
   if (WiFi.status() != WL_CONNECTED) {
     return setupServices();
   } else {
+    boolean connectedToFirebase = false;
+    if (Firebase.failed()) {
+      connectedToFirebase = connectToFirebase();
+    }
     loopOTA();
-    return false;
-  }
+    return connectedToFirebase;
+  } 
 }
 
 #endif

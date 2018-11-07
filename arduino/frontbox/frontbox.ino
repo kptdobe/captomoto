@@ -39,20 +39,36 @@ void setup() {
   setLight(FRONT_PIN, true);
   delay(1000);
   setLight(FRONT_PIN, false);
-
  
 } 
+
+unsigned long lastTimeAvailableCalled = -1;
+unsigned long MAX_ELLAPSED_TIME_BETWEEN_AVAILABLE_CALLS = 10 * 60 * 1000; // 10 mins in millis
 
 void loop() {
   if(loopServices()) {
     setupFirebaseStreaming();
   }
+
+  unsigned long currentTime = millis();
+  unsigned long ellapsed = (currentTime - lastTimeAvailableCalled) / 1000;
+
+  if (MAX_ELLAPSED_TIME_BETWEEN_AVAILABLE_CALLS < ellapsed) {
+    reset();
+  }
   
   if (Firebase.available()) {
+    print("Time elapsed since last Firebase.available: ");
+    print(ellapsed);
+    println("s");
+    
+    lastTimeAvailableCalled = currentTime;
+    
     FirebaseObject event = Firebase.readEvent();
     
     String eventType = event.getString("type");
     println("type: " + eventType);
+    
     if (eventType == "put") {
       String path = event.getString("path");
       println("path: " + path);
