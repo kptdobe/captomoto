@@ -6,35 +6,40 @@
 
 const String ROOT = "/sensors";
 
-const String POOL_LIGHT = "/pool/light";
+const String POOL = "/pool";
 
-#define POOL_PIN D1
+const String POOL_LIGHT = "/light";
+const String POOL_PUMP = "/pump";
 
-void setupFirebaseStreaming()
-{
-  Firebase.stream(ROOT + POOL_LIGHT);
-  println("Started streaming on " + ROOT + POOL_LIGHT);
+#define POOL_LIGHT_PIN D1
+#define POOL_PUMP_PIN D2
 
-  bool init = Firebase.getBool(ROOT + POOL_LIGHT);
-  setLight(POOL_PIN, init);
+
+void setupFirebaseStreaming() {
+  Firebase.stream(ROOT + POOL);
+  println("Started streaming on " + ROOT + POOL);
+
+  bool light = Firebase.getBool(ROOT + POOL + POOL_LIGHT);
+  setLight(POOL_LIGHT_PIN, light);
+
+  bool pump = Firebase.getBool(ROOT + POOL + POOL_PUMP);
+  setLight(POOL_PUMP_PIN, pump);
 }
 
-void setup()
-{
+void setup() {
 
   setupServices();
   setupFirebaseStreaming();
 
-  pinMode(POOL_PIN, OUTPUT);
+  pinMode(POOL_LIGHT_PIN, OUTPUT);
+  pinMode(POOL_PUMP_PIN, OUTPUT);
 }
 
 unsigned long lastTimeAvailableCalled = -1;
 unsigned long MAX_ELLAPSED_TIME_BETWEEN_AVAILABLE_CALLS = 10 * 60 * 1000; // 10 mins in millis
 
-void loop()
-{
-  if (loopServices())
-  {
+void loop() {
+  if (loopServices()) {
     setupFirebaseStreaming();
   }
 
@@ -54,20 +59,47 @@ void loop()
     FirebaseObject event = Firebase.readEvent();
 
     String eventType = event.getString("type");
+    String path = event.getString("path");
+
+    println("");
+    println("");
+    println("TYPE: " + eventType);
+    println("PATH: " + path);
+
+    JsonVariant v = event.getJsonVariant("data");
+    String data = v.as<String>();
+    println("DATA: " + data);
+
+    if (eventType == "put" && path != "/") {
+      if (path == POOL_LIGHT) {
+        setLight(POOL_LIGHT_PIN, data == "true");
+      }
+      if (path == POOL_PUMP) {
+        setLight(POOL_PUMP_PIN, data == "true");
+      }
+    } else {
+      if (eventType == "put" || eventType == "patch") {
+        String root = "";
+        if (path == "/") {
+          // prefix with /data
+          root = "/data";
+        }
+        
+        bool light = event.getBool(root + POOL_LIGHT);
+        if (!event.failed()) {
+          print("Light value changed. New value: ");
+          println(light);
   
-    println("type: " + eventType);
-    if (eventType == "put")
-    {
-      String path = event.getString("path");
-      println("path: " + path);
-      if (path == "/")
-      {
-
-        bool light = event.getBool("data");
-        print("Light value changed. New value: ");
-        println(light);
-
-        setLight(POOL_PIN, light);
+          setLight(POOL_LIGHT_PIN, light);
+        }
+  
+        bool pump = event.getBool(root + POOL_PUMP);
+        if (!event.failed()) {
+          print("Pump value changed. New value: ");
+          println(pump);
+  
+          setLight(POOL_PUMP_PIN, pump);
+        }
       }
     }
   }

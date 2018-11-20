@@ -8,7 +8,6 @@ import { AngularFireDatabaseModule, AngularFireDatabase } from 'angularfire2/dat
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
-import { FrontPage } from '../pages/front/front';
 import { LoginPage } from '../pages/login/login';
 
 import { AuthService } from '../services/auth.service';
@@ -23,7 +22,6 @@ import { NgxErrorsModule } from '@ultimate/ngxerrors';
   declarations: [
     MyApp,
     HomePage,
-    FrontPage,
     LoginPage
   ],
   imports: [
@@ -37,7 +35,6 @@ import { NgxErrorsModule } from '@ultimate/ngxerrors';
   entryComponents: [
     MyApp,
     HomePage,
-    FrontPage,
     LoginPage
   ],
   providers: [

@@ -31,4 +31,8 @@ export class HomePage {
     this.db.object('/sensors/' + item).update({ light: isChecked });
   }
 
+  togglePump(isChecked) {
+    this.db.object('/sensors/pool/pump').set(isChecked);
+  }
+
 }

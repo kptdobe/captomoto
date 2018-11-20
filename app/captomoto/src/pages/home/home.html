@@ -15,7 +15,12 @@
     <ion-toggle [ngModel]="front.light" (ngModelChange)="toggleLight($event, 'front')" checked="{{ (front | async)?.light }}"></ion-toggle>
   </ion-item>
   <ion-item padding>
-    <ion-label>Intérieur: piscine</ion-label>
-<ion-toggle [ngModel]="pool.light" (ngModelChange)="toggleLight($event, 'pool')" checked="{{ (pool | async)?.light }}"></ion-toggle>
+    <ion-label>Intérieur: lumière piscine</ion-label>
+    <ion-toggle [ngModel]="pool.light" (ngModelChange)="toggleLight($event, 'pool')" checked="{{ (pool | async)?.light }}"></ion-toggle>
+  </ion-item>
+  <h2>Pompe</h2>
+  <ion-item padding>
+    <ion-label>Pompe piscine</ion-label>
+    <ion-toggle [ngModel]="pool.pump" (ngModelChange)="togglePump($event)" checked="{{ (pool | async)?.pump }}"></ion-toggle>
   </ion-item>
 </ion-content>
