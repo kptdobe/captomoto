@@ -33,6 +33,9 @@ void setup() {
 
   pinMode(POOL_LIGHT_PIN, OUTPUT);
   pinMode(POOL_PUMP_PIN, OUTPUT);
+
+  setLight(POOL_LIGHT_PIN, false);
+  setLight(POOL_PUMP_PIN, false);
 }
 
 unsigned long lastTimeAvailableCalled = -1;
